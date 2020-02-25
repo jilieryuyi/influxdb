@@ -26,7 +26,7 @@ var (
 )
 
 type indexSeriesCursor struct {
-	sqry         storage.SeriesCursor
+	sqry         *storage.SeriesCursor
 	err          error
 	cond         influxql.Expr
 	row          reads.SeriesRow

@@ -423,7 +423,7 @@ func (e *Engine) Close() error {
 }
 
 // CreateSeriesCursor creates a SeriesCursor for usage with the read service.
-func (e *Engine) CreateSeriesCursor(ctx context.Context, orgID, bucketID influxdb.ID, cond influxql.Expr) (SeriesCursor, error) {
+func (e *Engine) CreateSeriesCursor(ctx context.Context, orgID, bucketID influxdb.ID, cond influxql.Expr) (*SeriesCursor, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	if e.closing == nil {

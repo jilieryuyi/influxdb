@@ -13,17 +13,12 @@ import (
 )
 
 var (
-	errUnexpectedOrg                   = errors.New("seriesCursor: unexpected org")
-	errUnexpectedTagComparisonOperator = errors.New("seriesCursor: unexpected tag comparison operator")
+	errUnexpectedOrg                   = errors.New("SeriesCursor: unexpected org")
+	errUnexpectedTagComparisonOperator = errors.New("SeriesCursor: unexpected tag comparison operator")
 )
 
-type SeriesCursor interface {
-	Close() error
-	Next() (*SeriesCursorRow, error)
-}
-
-// seriesCursor is an implementation of SeriesCursor over an tsi1.Index.
-type seriesCursor struct {
+// SeriesCursor is an implementation of SeriesCursor over an tsi1.Index.
+type SeriesCursor struct {
 	index        *tsi1.Index
 	indexref     *lifecycle.Reference
 	sfile        *tsdb.SeriesFile
@@ -44,7 +39,7 @@ type SeriesCursorRow struct {
 }
 
 // newSeriesCursor returns a new instance of SeriesCursor.
-func newSeriesCursor(orgID, bucketID influxdb.ID, index *tsi1.Index, sfile *tsdb.SeriesFile, cond influxql.Expr) (SeriesCursor, error) {
+func newSeriesCursor(orgID, bucketID influxdb.ID, index *tsi1.Index, sfile *tsdb.SeriesFile, cond influxql.Expr) (*SeriesCursor, error) {
 	if cond != nil {
 		var err error
 		influxql.WalkFunc(cond, func(node influxql.Node) {
@@ -73,7 +68,7 @@ func newSeriesCursor(orgID, bucketID influxdb.ID, index *tsi1.Index, sfile *tsdb
 	}
 
 	encodedOrgID := tsdb.EncodeOrgName(orgID)
-	return &seriesCursor{
+	return &SeriesCursor{
 		index:        index,
 		indexref:     indexref,
 		sfile:        sfile,
@@ -86,14 +81,14 @@ func newSeriesCursor(orgID, bucketID influxdb.ID, index *tsi1.Index, sfile *tsdb
 }
 
 // Close closes the iterator. Safe to call multiple times.
-func (cur *seriesCursor) Close() error {
+func (cur *SeriesCursor) Close() error {
 	cur.sfileref.Release()
 	cur.indexref.Release()
 	return nil
 }
 
 // Next emits the next point in the iterator.
-func (cur *seriesCursor) Next() (*SeriesCursorRow, error) {
+func (cur *SeriesCursor) Next() (*SeriesCursorRow, error) {
 	if !cur.init {
 		if err := cur.readSeriesKeys(); err != nil {
 			return nil, err
@@ -118,7 +113,7 @@ func (cur *seriesCursor) Next() (*SeriesCursorRow, error) {
 	return nil, nil
 }
 
-func (cur *seriesCursor) readSeriesKeys() error {
+func (cur *SeriesCursor) readSeriesKeys() error {
 	name := tsdb.EncodeName(cur.orgID, cur.bucketID)
 	sitr, err := cur.index.MeasurementSeriesByExprIterator(name[:], cur.cond)
 	if err != nil {

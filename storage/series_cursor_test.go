@@ -17,7 +17,7 @@ func Test_NewSeriesCursor_UnexpectedOrg(t *testing.T) {
 	orgID := influxdb.ID(0x0f0f)
 	encodedOrgID := tsdb.EncodeOrgName(orgID)
 	bucketID := influxdb.ID(0xb0b0)
-	cur := &seriesCursor{
+	cur := &SeriesCursor{
 		keys: [][]byte{
 			makeKey(orgID, bucketID),
 			makeKey(influxdb.ID(0xffff), bucketID),
